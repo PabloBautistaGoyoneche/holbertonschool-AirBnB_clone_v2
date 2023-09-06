@@ -55,7 +55,13 @@ class TestCreateWithParameters(unittest.TestCase):
         """Try creating an instance with an invalid parameter format"""
         cmd = 'create BaseModel invalid_param'
         output = HBNBCommand().onecmd(cmd)
-        self.assertIn("** invalid parameter format:", output)        
+        self.assertIn("** invalid parameter format:", output)
+
+    def test_create_instance_with_invalid_class_name(self):
+        """Try creating an instance with an invalid class name"""
+        cmd = 'create InvalidClassName name="My House"'
+        output = HBNBCommand().onecmd(cmd)
+        self.assertIn("** class doesn't exist **", output)
 
 if __name__ == "__main__":
     unittest.main()
