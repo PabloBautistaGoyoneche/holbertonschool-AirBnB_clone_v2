@@ -9,7 +9,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from models import FileStorage
+from models import storage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] == '{' and pline[-1] =='}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -114,60 +114,55 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, arg):
-        """Create a new instance of a class with given parameters"""
+        """ Create a new object of a specific class and store it """
+
+        """ Split the argument string to extract class name and attribute assignments """
+        arg_split = arg.split(" ")
+
+        """ Check if the argument is missing """
         if not arg:
             print("** class name missing **")
             return
-        
-        """Division of arguments"""
-        args = arg.split() 
-        class_name = args[0]
-
-        """Class validation"""
-        if class_name not in HBNBCommand.classes:
+        elif arg_split[0] not in HBNBCommand.classes:
+            """ Check if the specified class exists """
             print("** class doesn't exist **")
             return
-        
-        """Parse the parameters"""
-        params = {}
-        i = 1
-        while i < len(args):
-            param = args[i]
-            """Each parameter is divided into key and value"""
-            if '=' in param:
-                param_parts = param.split('=')
-                if len(param_parts) == 2:
-                    key = param_parts[0]
-                    value = param_parts[1]
-                    """ Replace underscores with spaces in the key"""
-                    key = key.replace('_', ' ')
-                    """ Handle strings with double quotes"""
-                    if value.startswith('"') and value.endswith('"'):
-                        value = value[1:-1]
-                        """ Replace escaped double quotes with double quotes"""
-                        value = value.replace('\\"', '"')
-                    """ Try to convert to float or int if possible"""
-                    if '.' in value:
-                        try:
-                            value = float(value)
-                        except ValueError:
-                            pass
-                    else:
-                        try:
-                            value = int(value)
-                        except ValueError:
-                            pass
-                    params[key] = value
-                else:
-                    print("** invalid parameter format: {} **".format(param))
-            else:
-                print("** invalid parameter format: {} **".format(param))
-            i += 1
 
-        """Create and save the instance"""
-        new_instance = HBNBCommand.classes[class_name](**params)
-        new_instance.save()
+        """ Create an empty dictionary to hold attribute assignments """
+        input_dict = {}
+        
+        """ Extract attribute assignments and their values from the argument """
+        parameter_split = arg_split[1:]
+        for value in parameter_split:
+            parameter_key, parameter_value = value.split("=")
+            if (parameter_value[0] == '"'):
+                """ Handle quoted attribute values (remove quotes and replace underscores with spaces)"""
+                var_to_replace = parameter_value[1:-1].replace("_", " ")
+                input_dict[parameter_key] = var_to_replace
+            elif '.' in parameter_value:
+                """ Convert float attribute values """
+                parameter_value = float(parameter_value)
+                input_dict[parameter_key] = parameter_value
+            else:
+                """ Convert integer attribute values """
+                parameter_value = int(parameter_value)
+                input_dict[parameter_key] = parameter_value
+
+        """ Create a new instance of the specified class """
+        new_instance = HBNBCommand.classes[arg_split[0]]()
+
+        """ Update the instance's dictionary with the attribute assignments """
+        new_instance.__dict__.update(input_dict)
+
+        """ Store the new instance """
+        storage.new(new_instance)
+
+        """ Print the ID of the newly created instance """
         print(new_instance.id)
+
+        """ Save the changes to the storage system """
+        storage.save()
+
 
     def help_create(self):
         """ Help information for the create method """
@@ -198,7 +193,7 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(FileStorage._FileStorage__objects[key])
+            print(storage._FileStorage__objects[key])
         except KeyError:
             print("** no instance found **")
 
@@ -230,8 +225,8 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(FileStorage.all()[key])
-            FileStorage.save()
+            del(storage.all()[key])
+            storage.save()
         except KeyError:
             print("** no instance found **")
 
@@ -249,11 +244,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in FileStorage._FileStorage__objects.items():
+            for k, v in storage._FileStorage__objects.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in FileStorage._FileStorage__objects.items():
+            for k, v in storage._FileStorage__objects.items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -266,7 +261,7 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in FileStorage._FileStorage__objects.items():
+        for k, v in storage._FileStorage__objects.items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)
@@ -301,7 +296,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         # determine if key is present
-        if key not in FileStorage.all():
+        if key not in storage.all():
             print("** no instance found **")
             return
 
@@ -314,7 +309,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -322,10 +317,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
@@ -335,7 +330,7 @@ class HBNBCommand(cmd.Cmd):
             args = [att_name, att_val]
 
         # retrieve dictionary of current objects
-        new_dict = FileStorage.all()[key]
+        new_dict = storage.all()[key]
 
         # iterate through attr names and values
         for i, att_name in enumerate(args):
