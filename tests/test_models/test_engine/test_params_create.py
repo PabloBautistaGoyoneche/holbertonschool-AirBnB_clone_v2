@@ -31,5 +31,14 @@ class TestCreateWithParameters(unittest.TestCase):
         self.assertIsInstance(obj, BaseModel)
         self.assertEqual(obj.age, 25)
 
+    def test_create_instance_with_float_parameter(self):
+        """Test instantiation with a floating point parameter"""
+        cmd = 'create BaseModel price=10.99'
+        HBNBCommand().onecmd(cmd)
+        obj_id = cmd.split()[2]
+        obj = storage.all()["BaseModel." + obj_id]
+        self.assertIsInstance(obj, BaseModel)
+        self.assertEqual(obj.price, 10.99)
+
 if __name__ == "__main__":
     unittest.main()
