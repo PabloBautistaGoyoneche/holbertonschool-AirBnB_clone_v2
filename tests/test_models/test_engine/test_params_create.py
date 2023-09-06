@@ -8,6 +8,10 @@ class TestCreateWithParameters(unittest.TestCase):
     def setUp(self):
         """Clean storage before each test"""
         storage.delete_all()
+    
+    def tearDown(self):
+        """Limpiar el almacenamiento después de cada prueba"""
+        storage.delete_all()
         
 
 if __name__ == "__main__":
