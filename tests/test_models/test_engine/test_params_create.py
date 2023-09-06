@@ -22,5 +22,14 @@ class TestCreateWithParameters(unittest.TestCase):
         self.assertIsInstance(obj, BaseModel)
         self.assertEqual(obj.name, "My little house")
 
+    def test_create_instance_with_integer_parameter(self):
+        """Test creating an instance with an integer parameter"""
+        cmd = 'create BaseModel age=25'
+        HBNBCommand().onecmd(cmd)
+        obj_id = cmd.split()[2]
+        obj = storage.all()["BaseModel." + obj_id]
+        self.assertIsInstance(obj, BaseModel)
+        self.assertEqual(obj.age, 25)
+
 if __name__ == "__main__":
     unittest.main()
