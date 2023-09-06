@@ -51,5 +51,11 @@ class TestCreateWithParameters(unittest.TestCase):
         self.assertEqual(obj.age, 30)
         self.assertEqual(obj.price, 99.99)
 
+    def test_create_instance_with_invalid_parameter_format(self):
+        """Try creating an instance with an invalid parameter format"""
+        cmd = 'create BaseModel invalid_param'
+        output = HBNBCommand().onecmd(cmd)
+        self.assertIn("** invalid parameter format:", output)        
+
 if __name__ == "__main__":
     unittest.main()
