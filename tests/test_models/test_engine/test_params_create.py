@@ -40,5 +40,16 @@ class TestCreateWithParameters(unittest.TestCase):
         self.assertIsInstance(obj, BaseModel)
         self.assertEqual(obj.price, 10.99)
 
+    def test_create_instance_with_multiple_parameters(self):
+        """Try creating an instance with multiple parameters"""
+        cmd = 'create BaseModel name="My House" age=30 price=99.99'
+        HBNBCommand().onecmd(cmd)
+        obj_id = cmd.split()[2]
+        obj = storage.all()["BaseModel." + obj_id]
+        self.assertIsInstance(obj, BaseModel)
+        self.assertEqual(obj.name, "My House")
+        self.assertEqual(obj.age, 30)
+        self.assertEqual(obj.price, 99.99)
+
 if __name__ == "__main__":
     unittest.main()
