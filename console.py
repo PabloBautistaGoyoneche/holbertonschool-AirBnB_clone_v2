@@ -128,6 +128,42 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         
+        """Parse the parameters"""
+        params = {}
+        i = 1
+        while i < len(args):
+            param = args[i]
+            """Each parameter is divided into key and value"""
+            if '=' in param:
+                param_parts = param.split('=')
+                if len(param_parts) == 2:
+                    key = param_parts[0]
+                    value = param_parts[1]
+                    """ Replace underscores with spaces in the key"""
+                    key = key.replace('_', ' ')
+                    """ Handle strings with double quotes"""
+                    if value.startswith('"') and value.endswith('"'):
+                        value = value[1:-1]
+                        """ Replace escaped double quotes with double quotes"""
+                        value = value.replace('\\"', '"')
+                    """ Try to convert to float or int if possible"""
+                    if '.' in value:
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            pass
+                    else:
+                        try:
+                            value = int(value)
+                        except ValueError:
+                            pass
+                    params[key] = value
+                else:
+                    print("** invalid parameter format: {} **".format(param))
+            else:
+                print("** invalid parameter format: {} **".format(param))
+            i += 1
+
         new_instance = HBNBCommand.classes[args]()
         storage.save()
         print(new_instance.id)
