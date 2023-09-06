@@ -12,7 +12,15 @@ class TestCreateWithParameters(unittest.TestCase):
     def tearDown(self):
         """Limpiar el almacenamiento después de cada prueba"""
         storage.delete_all()
-        
+
+    def test_create_instance_with_string_parameter(self):
+        """Test creating an instance with a string parameter"""
+        cmd = 'create BaseModel name="My little house"'
+        HBNBCommand().onecmd(cmd)
+        obj_id = cmd.split()[2]  # Obtiene el ID del objeto creado
+        obj = storage.all()["BaseModel." + obj_id]
+        self.assertIsInstance(obj, BaseModel)
+        self.assertEqual(obj.name, "My little house")
 
 if __name__ == "__main__":
     unittest.main()
