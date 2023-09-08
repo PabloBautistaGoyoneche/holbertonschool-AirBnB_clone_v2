@@ -11,13 +11,28 @@ from models.review import Review
 
 
 class FileStorage:
-    """This class manages storage of hbnb models in JSON format"""
+    """ This class manages storage of hbnb models in JSON format """
     __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
-        """Returns a dictionary of models currently in storage"""
-        return FileStorage.__objects
+    def all(self, cls=None):
+        """ Returns a dictionary of all objects, or only objects of a specific class """
+        """ If no class is specified (cls is None), it returns the entire dictionary of objects """
+        if cls is None:
+            return FileStorage.__objects
+        
+        """ Creates an empty dictionary to store objects filtered by class """
+        myDict = {}
+        
+        """ Iterates through all the keys and values ​​in the object dictionary (__objects)"""
+        for key, value in FileStorage.__objects.items():
+            """ Checks if the class of the object matches the specified class (cls) """
+            if (value.__class__ == cls):
+                """ If it matches, add the object to the new dictionary (myDict) with the same key and value """
+                myDict[key] = value
+        
+        """ Returns the resulting dictionary, containing objects of the specified class (if cls was provided) """
+        return myDict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
