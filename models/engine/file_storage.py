@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
+import models
 from models.base_model import BaseModel
 from models.user import User
 from models.place import Place
@@ -16,23 +17,17 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """ Returns a dictionary of all objects, or only objects of a specific class """
-        """ If no class is specified (cls is None), it returns the entire dictionary of objects """
+        """Returns a dictionary of all objects, or only objects of a specific class."""
         if cls is None:
-            return FileStorage.__objects
-        
-        """ Creates an empty dictionary to store objects filtered by class """
-        myDict = {}
-        
-        """ Iterates through all the keys and values ​​in the object dictionary (__objects)"""
-        for key, value in FileStorage.__objects.items():
-            """ Checks if the class of the object matches the specified class (cls) """
-            if (value.__class__ == cls):
-                """ If it matches, add the object to the new dictionary (myDict) with the same key and value """
-                myDict[key] = value
-        
-        """ Returns the resulting dictionary, containing objects of the specified class (if cls was provided) """
-        return myDict
+            return self.__objects
+
+        my_dict = {}
+        for key, value in self.__objects.items():
+            """ Check if the object is an instance of the specified class (cls) """
+            if isinstance(value, cls):
+                """ If it is, add the object to the new dictionary (my_dict) """
+                my_dict[key] = value
+        return my_dict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -64,10 +59,10 @@ class FileStorage:
             pass
         
     def delete(self, obj=None):
-        """ Remove an object from __objects if it is inside """
+        """Remove an object from __objects if it is inside."""
         if obj is not None:
-            """ Creates the key for the object to be deleted in the format "ClassName.ObjectID" """
-            bye_key = str(obj.__class__.__name__) + '.' + (obj.id)
-            """ Removes the key and associated object from the storage dictionary """
-            FileStorage.__objects.pop(bye_key)
+            """ Generate the key for the object in the format "ClassName.ObjectID" """
+            key = "{}.{}".format(obj.__class__.__name__, obj.id)
+            """ Remove the key and associated object from the storage dictionary """
+            self.__objects.pop(key, None)
 
