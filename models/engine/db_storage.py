@@ -14,7 +14,7 @@ from models.user import User
 class DBStorage:
     """DBstorage class"""
     __engine = None
-    __sessions = None
+    __session = None
 
     def __init__(self):
         """Initial Method"""
