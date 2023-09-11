@@ -240,15 +240,15 @@ class HBNBCommand(cmd.Cmd):
         """ Shows all objects, or all objects of a class"""
         print_list = []
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-            storage = storage.all(eval(args))
+            storeFile = storage.all(eval(args))
         else:
-            storage = storage._fileStorage__objects
+            storeFile = storage._fileStorage__objects
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.items():
+            for k, v in storeFile.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
