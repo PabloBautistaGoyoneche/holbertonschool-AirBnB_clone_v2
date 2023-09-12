@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 """ Console Module """
-import cmd
 import os
+from os import getenv
+import cmd
 import sys
 from models.base_model import BaseModel
 from models.user import User
