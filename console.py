@@ -243,7 +243,7 @@ class HBNBCommand(cmd.Cmd):
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
             storeFile = storage.all(eval(args))
         else:
-            storeFile = storage._fileStorage__objects
+            storeFile = storage._FileStorage__objects
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
