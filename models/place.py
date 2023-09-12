@@ -6,6 +6,27 @@ from models.review import Review
 from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
+""" Defines the place_amenity table for the Many-To-Many relationship """
+metadata = Base.metadata
+place_amenity = Table(
+    'place_amenity',
+    metadata,
+    Column(
+        'place_id',
+        String(60),
+        ForeignKey('places.id'),
+        primary_key=True,
+        nullable=False
+    ),
+    Column(
+        'amenity_id',
+        String(60),
+        ForeignKey('amenities.id'),
+        primary_key=True,
+        nullable=False
+    )
+)
+
 class Place(BaseModel, Base):
     """ A place to stay """
     __tablename__ = 'places'
@@ -20,11 +41,55 @@ class Place(BaseModel, Base):
     price_by_night = Column(Integer, nullable=False, default=0)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+
+    """ Add the relationship amenities with secondary (for DBStorage) """
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        amenities = relationship(
+            "Amenity",
+            secondary=place_amenity,
+            viewonly=False
+        )
+    else:
+        """ Add the getter and setter for amenities (for FileStorage) """
+        @property
+        def amenities(self):
+            """
+            Getter attribute for amenities
+
+            Returns:
+                list: List of Amenity instances linked to this Place
+            """
+            from models import storage
+            from models.amenity import Amenity
+            all_amenities = storage.all(Amenity)
+            linked_amenities = []
+            for amenity_id in self.amenity_ids:
+                key = f"Amenity.{amenity_id}"
+                if key in all_amenities:
+                    linked_amenities.append(all_amenities[key])
+            return linked_amenities
+
+        @amenities.setter
+        def amenities(self, amenity):
+            """
+            Setter attribute for amenities
+
+            Args:
+                amenity (Amenity): Amenity object to add to amenity_ids
+            """
+            from models.amenity import Amenity
+            if isinstance(amenity, Amenity):
+                self.amenity_ids.append(amenity.id)
+
     amenity_ids = []
 
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         """ Database storage: Establishing relationships """
-        reviews = relationship("Review", backref="place", cascade="all, delete-orphan")
+        reviews = relationship(
+            "Review",
+            backref="place",
+            cascade="all, delete-orphan"
+        )
     else:
         """ File storage: Getter attribute for reviews """
     @property
