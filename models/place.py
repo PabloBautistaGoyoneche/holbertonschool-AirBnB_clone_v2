@@ -20,3 +20,24 @@ class Place(BaseModel, Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     amenity_ids = []
+
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        """ Database storage: Establishing relationships """
+        reviews = relationship("Review", backref="place", cascade="all, delete-orphan")
+    else:
+        """ File storage: Getter attribute for reviews """
+    @property
+    def reviews(self):
+        """
+        Getter attribute for reviews
+
+        Returns:
+            list: List of Review instances associated with the current Place
+        """
+        from models import storage
+        """ We get all objects of type Review from storage """
+        all_reviews = storage.all(Review)
+        """ We filter reviews that have place_id equal to the ID of this Place """
+        place_reviews = [review for review in all_reviews.values()
+                        if review.place_id == self.id]
+        return place_reviews
