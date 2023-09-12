@@ -2,10 +2,9 @@
 """ Place Module for HBNB project """
 from os import getenv
 from models.base_model import BaseModel, Base
+from models.review import Review
 from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
-from review import Review
-
 
 class Place(BaseModel, Base):
     """ A place to stay """
