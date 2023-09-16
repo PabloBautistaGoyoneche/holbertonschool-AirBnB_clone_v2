@@ -10,29 +10,50 @@ Base = declarative_base()
 
 class BaseModel:
     """A base class for all hbnb models"""
+    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+        id = Column(
+                String(60),
+                default=lambda: str(uuid.uuid4()),
+                primary_key=True,
+                nullable=False)
 
-    id = Column(String(60), unique=True, nullable=False, primary_key=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+        created_at = Column(
+                DateTime,
+                nullable=False,
+                default=datetime.now())
 
-    def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
-        if not kwargs:
-            from models import storage
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-        else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
-            for key, value in kwargs.items():
-                if '__class__' not in key:
-                    setattr(self, key, value)
+        updated_at = Column(
+                DateTime,
+                nullable=False,
+                default=datetime.now())
 
-            if not self.id:
+    else:
+        def init(self, *args, **kwargs):
+            """Instatntiates a new model"""
+            if not kwargs:
+                self.id = str(uuid.uuid4())
+                self.created_at = datetime.now()
+                self.updated_at = datetime.now()
+
+            else:
+                if kwargs.get("updated_at"):
+                    kwargs['updated_at'] = datetime.strptime(
+                            kwargs['updated_at'],
+                            '%Y-%m-%dT%H:%M:%S.%f')
+                else:
+                    self.updated_at = datetime.now()
+
+                if kwargs.get("created_at"):
+                    kwargs['created_at'] = datetime.strptime(
+                            kwargs['created_at'],
+                            '%Y-%m-%dT%H:%M:%S.%f')
+                else:
+                    self.created_at = datetime.now()
+
+                for key, value in kwargs.items():
+                    if 'class' not in key:
+                        setattr(self, key, value)
+
                 self.id = str(uuid.uuid4())
 
     def __str__(self):
