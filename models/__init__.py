@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-"""This module instantiates an object of class FileStorage"""
-import os
+"""This module instantiates an object of class FileStorage or DBStorage"""
 
-if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+from os import getenv
+
+if getenv("HBNB_TYPE_STORAGE") == "db":
     from models.engine.db_storage import DBStorage
     storage = DBStorage()
     storage.reload()
