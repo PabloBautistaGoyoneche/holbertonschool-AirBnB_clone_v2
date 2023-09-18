@@ -76,4 +76,3 @@ class DBStorage:
     def close(self):
         """ Log out of the database """
         self.__session.close()
-    
