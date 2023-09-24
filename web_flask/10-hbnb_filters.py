@@ -1,20 +1,9 @@
 #!/usr/bin/python3
-"""Script that starts a Flask web application"""
-
-""" Import Flask and render_template from flask module """
 from flask import Flask, render_template
-
-"""
-    Import the State and Amenity classes from the
-    models.state and models.amenity modules
-"""
 from models.state import State
 from models.amenity import Amenity
-
-""" Import the storage module from the models package """
 from models import storage
 
-""" Create an instance of the Flask application """
 app = Flask(__name__)
 
 """ Define a route for the web application in '/hbnb_filters """
